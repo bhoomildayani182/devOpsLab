@@ -57,14 +57,14 @@ pipeline {
             }
         }
       stage('deploy') {
-        input{
-            message "Select the environment to deploy"
-            ok "done"
-            parameters{
-                choice(name: 'Type', choices:['Dev','Test','Deploy'], description: '')
-            }
+        // input{
+        //     message "Select the environment to deploy"
+        //     ok "done"
+        //     parameters{
+        //         choice(name: 'Type', choices:['Dev','Test','Deploy'], description: '')
+        //     }
 
-        }
+        // }
             steps {
                 script{echo 'deploying the application'
                 withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
@@ -85,7 +85,7 @@ pipeline {
         //                 sh 'git branch'
         //                 sh 'git config --list'
 
-        //                 sh "git remote set-url origin https://${USERNAME}:${PASSWORD}@github.com/learnwithparth/springboot-jenkins.git"
+        //                 sh "git remote set-url origin https://${USERNAME}:${PASSWORD}@github.com/bhoomildayani182/springboot-jenkins.git"
         //                 sh 'git add .'
         //                 sh 'git commit -m "version change"'
         //                 sh 'git push origin HEAD:jenkins-jobs'
