@@ -85,7 +85,7 @@ pipeline {
                         sh 'git branch'
                         sh 'git config --list'
 
-                        sh "git remote set-url origin https:///${USERNAME}:${PASSWORD}@github.com/bhoomildayani182/devOpsLab.git"
+                        sh "git remote set-url origin https://${USERNAME}:///${PASSWORD}@github.com/bhoomildayani182/devOpsLab.git"
                         sh 'git add .'
                         sh 'git commit -m "version change"'
 //                         sh 'git push origin master'
