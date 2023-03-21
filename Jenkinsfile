@@ -74,7 +74,7 @@ pipeline {
                 
              }
         }
-<<<<<<< HEAD
+
         stage('commit version update'){
             steps{
                 script{
