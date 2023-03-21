@@ -74,6 +74,7 @@ pipeline {
                 
              }
         }
+<<<<<<< HEAD
         stage('commit version update'){
             steps{
                 script{
@@ -81,9 +82,11 @@ pipeline {
                         sh 'git config --global user.email "bhoomildayani182@gmail.com"'
                         sh 'git config --global user.name "bhoomildayani182"'
 
+
                         sh 'git status'
                         sh 'git branch'
                         sh 'git config --list'
+
 
                         sh "git remote set-url origin https://${PASSWORD}@github.com/bhoomildayani182/devOpsLab.git"
                         sh 'git add .'
