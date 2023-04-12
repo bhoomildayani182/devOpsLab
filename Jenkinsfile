@@ -1,5 +1,3 @@
-#!/usr/bin/env groovy
-
 pipeline {
     agent any
     environment {
@@ -57,14 +55,14 @@ pipeline {
             }
         }
       stage('deploy') {
-        input{
-            message "Select the environment to deploy"
-            ok "done"
-            parameters{
-                choice(name: 'Type', choices:['Dev','Test','Deploy'], description: '')
-            }
+        // input{
+        //     message "Select the environment to deploy"
+        //     ok "done"
+        //     parameters{
+        //         choice(name: 'Type', choices:['Dev','Test','Deploy'], description: '')
+        //     }
 
-        }
+        // }
             steps {
                 script{echo 'deploying the application'
                 withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
@@ -74,25 +72,29 @@ pipeline {
                 
              }
         }
-//         stage('commit version update'){
-//             steps{
-//                 script{
-//                     withCredentials([usernamePassword(credentialsId: 'git-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
-//                         sh 'git config --global user.email "jenkins@example.com"'
-//                         sh 'git config --global user.name "jenkins"'
-//
-//                         sh 'git status'
-//                         sh 'git branch'
-//                         sh 'git config --list'
-//
-//                         sh "git remote set-url origin https://${USERNAME}:${PASSWORD}@github.com/bhoomildayani182/springboot-jenkins.git"
-//                         sh 'git add .'
-//                         sh 'git commit -m "version change"'
-//                         sh 'git push origin HEAD:jenkins-jobs'
-//                     }
-//                 }
-//             }
-//         }
+
+        stage('commit version update'){
+            steps{
+                script{
+                    withCredentials([usernamePassword(credentialsId: 'git-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
+                        sh 'git config --global user.email "bhoomildayani182@gmail.com"'
+                        sh 'git config --global user.name "bhoomildayani182"'
+
+
+                        sh 'git status'
+                        sh 'git branch'
+                        sh 'git config --list'
+
+
+                        sh "git remote set-url origin https://${PASSWORD}@github.com/bhoomildayani182/devOpsLab.git"
+                        sh 'git add .'
+                        sh 'git commit -m "version change"'
+                        // sh 'git push -u origin master'
+                        sh 'git push origin HEAD:jenkins-jobs'
+                    }
+                }
+            }
+        }
     }
     post{
         always{
@@ -106,3 +108,6 @@ pipeline {
         }
     }
 }
+
+
+
