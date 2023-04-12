@@ -39,7 +39,7 @@ pipeline {
                     def version = (readFile('pom.xml') =~ '<version>(.+)</version>')[0][2]
                     env.IMAGE_NAME = "$version-$BUILD_NUMBER"
                     sh "docker build -t bhoomildayani182/spring-boot:${IMAGE_NAME} ."
-                        
+                    sh "docker run -it -d -p 80:8080 bhoomildayani182/spring-boot:${IMAGE_NAME}"
                     }
             }
         }
