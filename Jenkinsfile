@@ -54,15 +54,17 @@ pipeline {
                 sh 'mvn test'}
             }
         }
-      stage('deploy') {
-        // input{
-        //     message "Select the environment to deploy"
-        //     ok "done"
-        //     parameters{
-        //         choice(name: 'Type', choices:['Dev','Test','Deploy'], description: '')
-        //     }
-
-        // }
+      stage('deploy'){
+            steps{
+                script{
+                    def dockerRestart = 'sudo service docker restart'
+                    def dockerRunCmd = "sudo docker run -it -d -p 80:8080 bhoomildayani182/spring-boot:${IMAGE_NAME}"
+                  sshagent(['ec2-prod']) {
+                        sh "ssh -o StrictHostKeyChecking=no ec2-user@44.212.27.93 ${dockerRunCmd}"
+                    }  
+                }
+            }
+        }
             steps {
                 script{echo 'deploying the application'
                 withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
