@@ -63,8 +63,8 @@ pipeline {
                         sh "ssh -o StrictHostKeyChecking=no ec2-user@44.212.27.93 ${dockerRunCmd}"
                     }  
                 }
-            }
-        }
+            }
+      }
             steps {
                 script{echo 'deploying the application'
                 withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
