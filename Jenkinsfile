@@ -1,3 +1,5 @@
+#!/usr/bin/env groovy
+
 pipeline {
     agent any
     environment {
@@ -14,20 +16,28 @@ pipeline {
     }
 
     stages {
-        stage('init'){
-            steps{
-                script{
-                    gv = load "script.groovy"
-                }
-            }
-        }
-        stage('config'){
-            steps{
-                script{
-                    gv.config()
-                }
-            }
-        }
+
+        // stage('Checkout') {
+        //     steps {
+        //         git branch: 'master', credentialsId: 'git-credentials', url: 'https://github.com/learnwithparth/springboot-jenkins.git'
+        //     }
+        // }
+        // stage('init'){
+        //     steps{
+        //         script{
+        //             gv = load "script.groovy"
+        //             //sh "git clone https://github.com/learnwithparth/springboot-jenkins.git"
+        //         }
+        //     }
+        // }
+        // stage('config'){
+        //     steps{
+        //         script{
+        //             gv.config()
+        //         }
+        //     }
+        // }
+
         stage('build') {
             
             steps {
@@ -36,10 +46,10 @@ pipeline {
                     echo "Software version is ${NEW_VERSION}"
                     sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.nextMinorVersion}.\\\${parsedVersion.incrementalVersion}\\\${parsedVersion.qualifier?}' 
                     sh 'mvn clean package'
-                    def version = (readFile('pom.xml') =~ '<version>(.+)</version>')[0][2]
-                    env.IMAGE_NAME = "$version-$BUILD_NUMBER"
-                    sh "docker build -t bhoomildayani182/spring-boot:${IMAGE_NAME} ."
-                    sh "docker run -it -d -p 80:8080 bhoomildayani182/spring-boot:${IMAGE_NAME}"
+                    def version = (readFile('pom.xml') =~ '<version>(.+)</version>')[0][1]
+                    env.IMAGE_NAME = "$version-Build-$BUILD_NUMBER"
+                    sh "docker build -t bhoomildayani182/spring-boot:${IMAGE_NAME} ." 
+                    sh "docker run -it -d -p 80:8080 bhoomildayani182/spring-boot:${IMAGE_NAME}"   
                     }
             }
         }
@@ -54,19 +64,17 @@ pipeline {
                 sh 'mvn test'}
             }
         }
-      stage('deploy'){
-            steps{
-                script{
-                    def dockerRestart = 'sudo service docker restart'
-                    def dockerRunCmd = "sudo docker run -it -d -p 80:8080 bhoomildayani182/spring-boot:${IMAGE_NAME}"
-                  sshagent(['ec2-prod']) {
-                        sh "ssh -o StrictHostKeyChecking=no ec2-user@44.212.27.93 ${dockerRunCmd}"
-                    }  
-                }
-            }
-      }
+      stage('push') {
+        // input{
+        //     message "Select the environment to deploy"
+        //     ok "done"
+        //     parameters{
+        //         choice(name: 'Type', choices:['Dev','Test','Deploy'], description: '')
+        //     }
+
+        // }
             steps {
-                script{echo 'deploying the application'
+                script{echo 'deploying the application Not working '
                 withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
                     sh "echo ${PASSWORD} | docker login -u ${USERNAME} --password-stdin"
                     sh "docker push bhoomildayani182/spring-boot:${IMAGE_NAME}"
@@ -74,42 +82,54 @@ pipeline {
                 
              }
         }
+        stage('deploy'){
+            steps{
+                script{
+                    def dockerRestart = 'sudo service docker restart'
+                    def dockerRunCmd = "sudo docker run -p 8080:8080 -d bhoomildayani182/spring-boot:${IMAGE_NAME}"
+                  sshagent(['ec2-prod']) {
+                        sh "ssh -o StrictHostKeyChecking=no ec2-user@44.212.27.93 ${dockerRunCmd}"
+                    }  
+                }
+            }
+        }
 
-//         stage('commit version update'){
-//             steps{
-//                 script{
-//                     withCredentials([usernamePassword(credentialsId: 'git-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
-//                         sh 'git config --global user.email "bhoomildayani182@gmail.com"'
-//                         sh 'git config --global user.name "bhoomildayani182"'
-//
-//
-//                         sh 'git status'
-//                         sh 'git branch'
-//                         sh 'git config --list'
-//
-//
-//                         sh "git remote set-url origin https://${PASSWORD}@github.com/bhoomildayani182/devOpsLab.git"
-//                         sh 'git add .'
-//                         sh 'git commit -m "version change"'
-//                         // sh 'git push -u origin master'
-//                         sh 'git push origin HEAD:jenkins-jobs'
-//                     }
-//                 }
-//             }
-//         }
+        // stage('commit and push to git'){
+        //     steps{
+        //         script{
+        //             withCredentials([usernamePassword(credentialsId: 'git-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
+        //                 //def encodedPassword = URLEncoder.encode("$PASSWORD",'UTF-8')
+        //                 sh 'git config --global user.email "learnwithparth.in@gmail.com"'
+        //                 sh 'git config --global user.name "learnwithparth"'
+
+        //                 sh 'git status'
+        //                 sh 'git branch'
+        //                 sh 'git config --list'
+
+        //                 //sh "git remote set-url origin https://${USERNAME}:${PASSWORD}@github.com/learnwithparth/springboot-jenkins.git"
+                        
+        //                 sh 'git add .'
+        //                 sh 'git status'
+        //                 sh 'git commit -m "version change updated"'
+        //                 //sh 'git push origin HEAD:master'
+        //                 sh "git push -u origin master"
+        //                 //sh "git push https://${USERNAME}:${PASSWORD}@github.com/bhoomildayani182/springboot-jenkins.git"
+        //                 }
+        //         }
+        //     }
+        // }
     }
     post{
         always{
-            echo 'Executing always...'
+            echo 'Executing always....'
         }
         success{
             echo 'Executing success'
         }
         failure{
             echo 'Executing failure'
-        }
-    }
+        }
+    }
 }
-
 
 
